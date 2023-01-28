@@ -1,0 +1,14 @@
+*{
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+table, th, td {
+  border:1px solid black;
+}
+
+body{
+    margin: 4rem 4rem;
+    min-height: 100vh;
+    background: rgb(255,254,254);
+    background: radial-gradient(circle, rgba(255,254,254,1) 0%, rgba(255,255,255,1) 43%, rgba(177,195,199,1) 100%);
+}
