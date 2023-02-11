@@ -38,11 +38,12 @@ body{
   position: absolute;
   bottom: 5%;
   left: 5%;
+  pointer-events: none;
 }
 
 .recipe-box img{
   overflow: hidden;
-  filter: blur(5px);
+  filter: blur(2px);
   overflow: hidden;
   width: 16rem;
   height: 10rem;
