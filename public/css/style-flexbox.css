@@ -1,30 +1,13 @@
-*{
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
 
-table, th, td {
-  border:1px solid black;
-}
-
-body{
-    margin: 4rem 4rem;
-    min-height: 100vh;
-    background: rgb(255,254,254);
-    background: radial-gradient(circle, rgba(255,254,254,1) 0%, rgba(255,255,255,1) 43%, rgba(177,195,199,1) 100%);
-}
-
-.page-title{
-  text-align: center;
-}
-
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  justify-items: center;
+.flex-container{
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
   gap: 2rem;
 }
 
-.recipe-box{
+.recipe-box-flex{
   cursor: pointer;
   text-align: center;
   position: relative;
@@ -36,7 +19,7 @@ body{
   color: white;
 }
 
-.recipe-box h2{
+.recipe-box-flex h2{
   text-align: center;
   z-index: 20;
   position: absolute;
@@ -45,7 +28,7 @@ body{
   pointer-events: none;
 }
 
-.recipe-box img{
+.recipe-box-flex img{
   position: absolute;
   top: 0;
   left: 0;
@@ -59,7 +42,7 @@ body{
   transition: .3s;
 }
 
-.recipe-box img:hover{
+.recipe-box-flex img:hover{
   position: absolute;
   top: -0.5rem;
   left: -0.5rem;
@@ -68,13 +51,13 @@ body{
   filter: blur(0);
 }
 
-.add-new-recipe-containter{
+.add-new-recipe-containter-flex {
   position: relative;
   height: 10rem;
   width: 16rem;
 }
 
-.add-new-recipe-box{
+.add-new-recipe-box-flex {
   position: absolute;
   top: 0;
   left: 0;
@@ -92,7 +75,7 @@ body{
   transition: .3s;
 }
 
-.add-new-recipe-box:hover{
+.add-new-recipe-box-flex:hover{
   position: absolute;
   top: -0.5rem;
   left: -0.5rem;
@@ -100,7 +83,7 @@ body{
   width: 17rem;
 }
 
-.add-new-recipe-box h2{
+.add-new-recipe-box-flex h2{
   margin: 0;
   color: grey;
   font-size: 5rem;
