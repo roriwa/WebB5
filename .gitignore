@@ -1,6 +1,12 @@
 .vscode/
+.idea/
+
+frontend/.idea/
+frontend/node_modules/
+frontend/.nuxt/
+frontend/.output
+frontend/dist/
 
 
 # Added by cargo
-
-/target
+backend/target/
