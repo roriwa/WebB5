@@ -8,6 +8,6 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  tags: String
+  tags: String[]
 }>();
 </script>

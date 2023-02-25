@@ -23,7 +23,7 @@
             <RecipeTags :tags="props.recipe.tags"/>
           </div>
           <div class="ml-auto">
-            <RecipeBookmarkIcon :bookmarked="recipeStore.isBookmarked(props.recipe)"/>
+            <RecipeBookmarkIcon :recipe="props.recipe"/>
           </div>
         </div>
       </template>

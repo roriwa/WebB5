@@ -7,14 +7,15 @@
       <template #header>
         <div class="relative">
           <n-h1>{{ props.recipe.name }}</n-h1>
-          <RecipeBookmarkIcon :bookmarked="recipeStore.isBookmarked(props.recipe)"/>
+          <RecipeBookmarkIcon :recipe="props.recipe"/>
           <div class="absolute top-10">
             <RecipeTags :tags="props.recipe.tags"/>
           </div>
         </div>
       </template>
       <template #header-extra>
-        <RecipeCardHeaderExtra :recipe="props.recipe" rateable/>
+        <RecipeCardHeaderExtra :recipe="props.recipe" :rateable="!!authStore.user"
+                               @rate="rate => recipeStore.rateRecipe(props.recipe, rate)"/>
       </template>
 
       <div>
@@ -58,5 +59,5 @@ const props = defineProps<{
 }>();
 
 const recipeStore = useRecipeStore();
-const isBookmarked = computed(() => recipeStore.isBookmarked(props.recipe));
+const authStore = useAuthStore();
 </script>
