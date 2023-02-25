@@ -23,8 +23,8 @@ import {useAuthStore} from "~/stores/auth";
 
 const loggedInDropdownOptions = [
   {
-    label: 'Favoriten',
-    key: 'favs',
+    label: 'Gespeichert',
+    key: 'bookmarked',
     props: {
       onClick: () => {
 

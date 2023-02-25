@@ -12,6 +12,28 @@ export const useRecipeStore = defineStore('recipes', () => {
         return recipes.value.find(r => r.id === id);
     }
 
+    function getBookmarkedRecipes(): Recipe[] {
+        return recipes.value.filter(r => isBookmarked(r));
+    }
+
+    async function bookmarkRecipe(recipe: Recipe, bookmark: boolean) {
+        if (bookmark && !isBookmarked(recipe)) {
+            bookmarks.value.push(recipe.id);
+        }
+
+        if (!bookmark) {
+            bookmarks.value = bookmarks.value.filter(i => i !== recipe.id);
+        }
+
+        // Todo send to server
+    }
+
+    async function rateRecipe(recipe: Recipe, star: number) {
+        recipe.stars = Math.min(Math.max(star, 0), 5);
+
+        //Todo send to server
+    }
+
     recipes.value = [
         {
             id: "1",
@@ -60,7 +82,7 @@ export const useRecipeStore = defineStore('recipes', () => {
         }
     ]
 
-    return {recipes, isBookmarked, getRecipeById};
+    return {recipes, isBookmarked, getRecipeById, getBookmarkedRecipes, bookmarkRecipe, rateRecipe};
 });
 
 export interface Recipe {

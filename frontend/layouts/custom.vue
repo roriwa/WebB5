@@ -8,6 +8,7 @@
         <!--suppress JSUnusedGlobalSymbols -->
         <div class="w-full min-h-full flex flex-col py-2 child:flex-grow">
           <NuxtPage
+              :key="key"
               :transition="{
                         name: 'page',
                         mode: 'out-in',
@@ -33,6 +34,35 @@ import Footer from "~/layouts/components/Footer.vue";
 
 const load = useLoadingBar()
 
+// TODO: Remove when https://github.com/vuejs/core/issues/5513 fixed
+const key = ref(0)
+const messages = [
+  "Uncaught NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node.", // chromium based
+  "NotFoundError: The object can not be found here." // safari
+]
+if (typeof window !== "undefined") {
+  // @ts-expect-error using arbitrary window key
+  if (!window.__vue5513) {
+    window.addEventListener("error", (event) => {
+      if (messages.includes(event.message)) {
+        event.preventDefault()
+        notification.warning({
+          title: "Soft Reload",
+          description: "Ein Soft Reload wurde automatisch ausgeführt, um einen bug zu beheben."
+              + " Verwende die Navigation langsamer um diesen Fehler zu vermeiden.",
+          keepAliveOnHover: false,
+          duration: 3000
+        })
+        console.warn(
+            "Rerendering layout because of https://github.com/vuejs/core/issues/5513"
+        )
+        key.value++
+      }
+    })
+  }
+  // @ts-expect-error using arbitrary window key
+  window.__vue5513 = true
+}
 </script>
 
 

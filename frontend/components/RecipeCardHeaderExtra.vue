@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <n-rate :readonly="!props.rateable" :value="props.recipe.stars"/>
+    <n-rate :readonly="!props.rateable" :value="props.recipe.stars" @update:value="onRateUpdate"/>
 
     <div
         class="flex items-center text-stone-400 absolute right-0 child:flex child:items-center child:justify-center">
@@ -24,4 +24,12 @@ const props = defineProps<{
   recipe: Recipe,
   rateable: boolean
 }>();
+
+const emits = defineEmits<{
+  (e: 'rate', value: number): void
+}>();
+
+function onRateUpdate(value: number) {
+  emits('rate', value)
+}
 </script>
