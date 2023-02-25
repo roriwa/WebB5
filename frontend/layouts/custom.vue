@@ -6,8 +6,9 @@
       </n-layout-header>
       <n-layout-content>
         <!--suppress JSUnusedGlobalSymbols -->
-        <NuxtPage
-            :transition="{
+        <div>
+          <NuxtPage
+              :transition="{
                         name: 'page',
                         mode: 'out-in',
                         onEnterCancelled: () => load.error(),
@@ -15,17 +16,16 @@
                         onBeforeEnter: () => load.finish(),
                         onBeforeLeave: () => load.start(),
                     }"
-        />
-      </n-layout-content>
-      <n-layout-footer>
+          />
+        </div>
         <Footer/>
-      </n-layout-footer>
+      </n-layout-content>
     </n-layout>
   </div>
 </template>
 
 <script setup>
-import Navbar from "~/layouts/components/Navbar.vue";
+import Navbar from "~/layouts/components/navbar/Navbar.vue";
 import Footer from "~/layouts/components/Footer.vue";
 
 const load = useLoadingBar()

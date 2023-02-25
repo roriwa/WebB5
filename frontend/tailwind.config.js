@@ -6,4 +6,11 @@ module.exports = {
             addVariant('child-hover', '& > *:hover');
         }
     ],
+    theme: {
+        extend: {
+            fontFamily: {
+                gloock: ["Gloock"]
+            }
+        }
+    }
 }

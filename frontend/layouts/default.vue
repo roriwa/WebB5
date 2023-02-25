@@ -19,4 +19,27 @@
 </template>
 
 <script setup>
-import {darkTheme, dateDeDE, deDE} from "naive-ui"</script>
+import {darkTheme, dateDeDE, deDE} from "naive-ui"
+import {useHead} from "#head";
+
+useHead({
+  title: "Recipe Finder",
+  link: [
+    {
+      href: "https://fonts.gstatic.com",
+      crossorigin: "anonymous",
+      rel: "preconnect"
+    },
+    {
+      href: "https://fonts.googleapis.com",
+      crossorigin: "anonymous",
+      rel: "preconnect"
+    },
+    {
+      href: "https://fonts.googleapis.com/css2?family=Gloock&display=swap",
+      rel: "stylesheet"
+    }
+  ]
+});
+
+</script>
