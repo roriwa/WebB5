@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 axum = "0.6.8"
-axum-extra = { version = "0.5", features = ["spa"] }
+tower-http = { version = "0.4", features = ["full"] }
 tokio = { version = "1.25", features = ["full"] }
 anyhow = "1.0"
 tracing = "0.1"

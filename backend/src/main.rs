@@ -1,6 +1,6 @@
-use axum::Router;
-use axum::routing::get;
-use axum_extra::routing::SpaRouter;
+use axum::{Router, ServiceExt};
+use axum::routing::{get, get_service};
+use tower_http::services::{ServeDir, ServeFile};
 use tracing::info;
 use tracing_subscriber::filter::LevelFilter;
 use tracing_subscriber::layer::SubscriberExt;
@@ -21,9 +21,13 @@ async fn main() -> anyhow::Result<()> {
 
     info!("Starting webserver...");
 
+    let static_files_service = get_service(ServeDir::new("dist/")
+        .append_index_html_on_directories(true)
+        .fallback(ServeFile::new("dist/index.html")));
+
     axum::Server::bind(&"0.0.0.0:8080".parse()?)
         .serve(Router::new()
-            .merge(SpaRouter::new("/", "dist/"))
+            .fallback(static_files_service)
             .nest("/api", app)
             .into_make_service())
         .await?;
