@@ -94,7 +94,6 @@ export interface Recipe {
     summary: String,
     description: String,
     imageUrl: String,
-
     ingredients: { amount: string, type: string }[],
     comments: Comment[]
 }
