@@ -23,7 +23,7 @@ import {darkTheme, dateDeDE, deDE} from "naive-ui"
 import {useHead} from "#head";
 
 useHead({
-  title: "Recipe Finder",
+  title: "Food Finder",
   link: [
     {
       href: "https://fonts.gstatic.com",
@@ -43,3 +43,9 @@ useHead({
 });
 
 </script>
+
+<style>
+body, html {
+  background-color: black;
+}
+</style>

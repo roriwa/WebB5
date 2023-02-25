@@ -6,7 +6,7 @@
       </n-layout-header>
       <n-layout-content>
         <!--suppress JSUnusedGlobalSymbols -->
-        <div>
+        <div class="w-full min-h-full flex flex-col py-2 child:flex-grow">
           <NuxtPage
               :transition="{
                         name: 'page',
@@ -17,8 +17,11 @@
                         onBeforeLeave: () => load.start(),
                     }"
           />
+          <div class="flex">
+            <Footer class="mt-auto"/>
+          </div>
         </div>
-        <Footer/>
+
       </n-layout-content>
     </n-layout>
   </div>

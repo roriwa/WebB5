@@ -5,7 +5,7 @@
         <div class="flex items-center">
 
           <Icon name="twemoji:beer-mug" size="2.5rem"/>
-          <h1 class="font-extrabold text-2xl ml-1 text-white">Food Recipes</h1>
+          <h1 class="font-extrabold text-2xl ml-1 text-white">Food Finder</h1>
         </div>
       </NuxtLink>
       <div class="hidden lg:block">
@@ -16,7 +16,7 @@
         <button class="lg:hidden ml-auto" @click="mobileShowMenu = !mobileShowMenu">
           <Icon name="ion:menu" size="3em"/>
         </button>
-        <div class="hidden lg:flex ml-auto items-center">
+        <div class="hidden lg:flex ml-auto items-center justify-center">
           <NavbarCreate class="mr-8"/>
           <NavbarUser/>
         </div>
