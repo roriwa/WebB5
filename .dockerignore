@@ -1,1 +1,8 @@
+frontend/.output/
+frontend/.nuxt/
+frontend/dist/
+frontend/node_modules/
+
+backend/dist/
 backend/target/
+backend/data/
