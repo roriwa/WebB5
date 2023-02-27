@@ -1,3 +1,3 @@
 export default defineAppConfig({
-    apiEndpoint: "http://localhost:8080/api"
+    apiEndpoint: import.meta.env.PROD ? `${window.location.origin}/api` : "http://localhost:8080/api"
 });

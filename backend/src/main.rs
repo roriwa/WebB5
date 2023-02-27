@@ -20,7 +20,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 mod routes;
 pub mod models;
 
-pub const FILE_UPLOAD_PATH: &str = "images/";
+pub const FILE_UPLOAD_PATH: &str = "data/images/";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -31,7 +31,10 @@ async fn main() -> anyhow::Result<()> {
             .from_env_lossy())
         .init();
 
-    let sqlite_con = SqlitePool::connect_with(SqliteConnectOptions::from_str("sqlite://./data.sqlite")?
+    tokio::fs::create_dir_all("data/").await?;
+    tokio::fs::create_dir_all(FILE_UPLOAD_PATH).await?;
+
+    let sqlite_con = SqlitePool::connect_with(SqliteConnectOptions::from_str("sqlite://data/db.sqlite")?
         .journal_mode(SqliteJournalMode::Wal)
         .create_if_missing(true)).await?;
 
@@ -40,7 +43,7 @@ async fn main() -> anyhow::Result<()> {
         .run(&sqlite_con)
         .await?;
 
-    tokio::fs::create_dir_all(FILE_UPLOAD_PATH).await?;
+
 
     let app_state = Arc::new(AppStateStruct {
         db: sqlite_con,
