@@ -10,7 +10,7 @@
         <NuxtLink :to="recipeLink">{{ props.recipe.name }}</NuxtLink>
       </template>
       <template #header-extra>
-        <RecipeCardHeaderExtra :recipe="props.recipe" :rateable="false"/>
+        <RecipeCardHeaderExtra :recipe="props.recipe"/>
       </template>
       <div class="h-32">
         <n-ellipsis :line-clamp="5">
@@ -19,7 +19,7 @@
       </div>
       <template #footer>
         <div class="flex">
-          <div>
+          <div class="w-full">
             <RecipeTags :tags="props.recipe.tags"/>
           </div>
           <div class="ml-auto">

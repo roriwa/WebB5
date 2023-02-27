@@ -2,13 +2,14 @@ use chrono::{TimeZone, Utc};
 use chrono::serde::ts_milliseconds;
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool};
+use uuid::Uuid;
 
 pub struct User {
     pub name: String,
     pub password_hash: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 pub struct Recipe {
     pub id: String,
     pub name: String,
@@ -18,7 +19,7 @@ pub struct Recipe {
     pub time_required: String,
     pub summary: String,
     pub description: String,
-    pub image_url: String,
+    pub image_key: String,
     pub ingredients: Vec<Ingredient>,
     pub comments: Vec<Comment>,
 }
@@ -36,6 +37,12 @@ pub struct Comment {
 
     #[serde(with = "ts_milliseconds")]
     pub posted: chrono::DateTime<Utc>,
+}
+
+#[derive(Serialize)]
+pub struct Session {
+    pub session_token: String,
+    pub username: String,
 }
 
 pub async fn get_user(pool: &SqlitePool, name: &str) -> anyhow::Result<Option<User>> {
@@ -70,7 +77,7 @@ pub async fn insert_recipe(pool: &SqlitePool, recipe: &Recipe) -> anyhow::Result
         .bind(&recipe.time_required)
         .bind(&recipe.summary)
         .bind(&recipe.description)
-        .bind(&recipe.image_url)
+        .bind(&recipe.image_key)
         .execute(pool).await?;
 
     for ingredient in &recipe.ingredients {
@@ -147,11 +154,76 @@ pub async fn get_all_recipes(pool: &SqlitePool) -> anyhow::Result<Vec<Recipe>> {
             time_required,
             summary,
             description,
-            image_url: image_location,
+            image_key: image_location,
             ingredients,
             comments,
         });
     }
 
     Ok(result)
+}
+
+pub async fn add_session(pool: &SqlitePool, user: &User) -> anyhow::Result<Session> {
+    let gen_uuid = Uuid::new_v4();
+
+    let session = Session {
+        session_token: gen_uuid.to_string(),
+        username: user.name.clone(),
+    };
+
+    sqlx::query("INSERT INTO sessions (session_token, username) VALUES (?, ?)")
+        .bind(&session.session_token)
+        .bind(&session.username)
+        .execute(pool).await?;
+
+    Ok(session)
+}
+
+pub async fn get_user_by_session(pool: &SqlitePool, session_token: impl AsRef<str>) -> anyhow::Result<Option<User>> {
+    let Some(username): Option<String> = sqlx::query("SELECT * FROM sessions WHERE session_token = ?")
+        .bind(session_token.as_ref())
+        .map(|r| r.get("username"))
+        .fetch_optional(pool).await? else { return Ok(None); };
+
+    get_user(pool, &username).await
+}
+
+pub async fn delete_session(pool: &SqlitePool, session_token: impl AsRef<str>) -> anyhow::Result<()> {
+    sqlx::query("DELETE FROM sessions WHERE session_token = ?")
+        .bind(session_token.as_ref())
+        .execute(pool).await?;
+
+    Ok(())
+}
+
+
+pub async fn bookmark(pool: &SqlitePool, user: String, recipe: String, bookmark: bool) -> anyhow::Result<()> {
+    let is_bookmarked = sqlx::query("SELECT * FROM bookmarks WHERE user = ? AND recipeId = ?")
+        .bind(&user)
+        .bind(&recipe)
+        .fetch_optional(pool).await?.is_some();
+
+    if is_bookmarked && !bookmark {
+        sqlx::query("DELETE FROM bookmarks WHERE user = ? AND recipeId = ?")
+            .bind(&user)
+            .bind(&recipe)
+            .execute(pool).await?;
+    } else if !is_bookmarked && bookmark {
+        sqlx::query("INSERT INTO bookmarks (user, recipeId) VALUES (?, ?)")
+            .bind(&user)
+            .bind(&recipe)
+            .execute(pool).await?;
+    }
+
+
+    Ok(())
+}
+
+pub async fn get_all_bookmarks(pool: &SqlitePool, user: String) -> anyhow::Result<Vec<String>> {
+    let bookmarks: Vec<String> = sqlx::query("SELECT * FROM bookmarks WHERE user = ?")
+        .bind(user)
+        .map(|r| r.get("recipeId"))
+        .fetch_all(pool).await?;
+
+    Ok(bookmarks)
 }

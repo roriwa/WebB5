@@ -28,12 +28,6 @@ export const useRecipeStore = defineStore('recipes', () => {
         // Todo send to server
     }
 
-    async function rateRecipe(recipe: Recipe, star: number) {
-        recipe.stars = Math.min(Math.max(star, 0), 5);
-
-        //Todo send to server
-    }
-
     recipes.value = [
         {
             id: "1",
@@ -54,7 +48,6 @@ export const useRecipeStore = defineStore('recipes', () => {
                     posted: Date.now(),
                     comment: "Lorem Ipsum DoloremLorem Ipsum DoloremLorem Ipsum DoloremLorem Ipsum DoloremLorem Ipsum DoloremLorem Ipsum DoLorem Ipsum DoloremLorem Ipsum DoloremLorem Ipsum DoloremLorem Ipsum DoloremLorem Ipsum DoloremLorem"
                 }],
-            stars: 4,
             ingredients: [
                 {
                     amount: "2ml",
@@ -89,7 +82,6 @@ export interface Recipe {
     id: String,
     name: String,
     tags: String[],
-    stars: number,
     timeRequired: String,
     summary: String,
     description: String,

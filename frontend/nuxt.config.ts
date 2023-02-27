@@ -4,6 +4,7 @@ export default defineNuxtConfig({
         '@huntersofbook/naive-ui-nuxt',
         '@nuxtjs/tailwindcss',
         'nuxt-icon',
+        '@vueuse/nuxt',
         [
             '@pinia/nuxt',
             {
@@ -15,4 +16,4 @@ export default defineNuxtConfig({
         // Auto-import pinia stores defined in `~/stores`
         dirs: ['stores']
     }
-})
+});

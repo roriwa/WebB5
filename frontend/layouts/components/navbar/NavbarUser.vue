@@ -10,7 +10,7 @@
             <Icon name="ph:user-fill" size="2em"/>
           </div>
           <div class="ml-2 font-bold">
-            {{ authStore.user.name }}
+            {{ username }}
           </div>
         </div>
       </n-dropdown>
@@ -19,15 +19,13 @@
 </template>
 
 <script setup lang="ts">
-import {useAuthStore} from "~/stores/auth";
-
 const loggedInDropdownOptions = [
   {
     label: 'Gespeichert',
     key: 'bookmarked',
     props: {
       onClick: () => {
-
+        router.push("/bookmarked");
       }
     }
   },
@@ -35,11 +33,21 @@ const loggedInDropdownOptions = [
     label: 'Logout',
     key: 'logout',
     props: {
-      class: "bg-red-500"
+      class: "bg-red-500",
+      onClick: logout
     }
   }
 ];
 
 const authStore = useAuthStore();
+const router = useRouter();
+const username = computed(() => authStore.user?.name ?? "");
+const loadingBar = useLoadingBar();
+
+async function logout() {
+  loadingBar.start();
+  await authStore.logout();
+  loadingBar.finish();
+}
 
 </script>
