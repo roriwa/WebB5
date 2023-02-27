@@ -2,10 +2,10 @@
 
 ## Start Development Environment
 
-To start the development environment, simply install Docker and run the following command:
+To start the development environment, simply install Docker and docker-compose and run the following command:
 
 ```bash
-docker compose up
+docker-compose up
 ```
 
 Note that the command will not work, if the Docker daemon is not running.
