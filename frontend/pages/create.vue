@@ -26,7 +26,7 @@
 
         <div>
           <n-h2>Erstelle ein neues Rezept</n-h2>
-          <n-form ref="createForm" :model="createFormModel">
+          <n-form ref="createForm" :model="createFormModel" :rules="createFormRules">
             <n-form-item path="name" label="Name">
               <n-input @keydown.enter.prevent v-model:value="createFormModel.name"/>
             </n-form-item>
@@ -52,7 +52,7 @@
             </n-form-item>
 
             <n-form-item path="description" label="Zubereitung">
-              <n-input type="textarea" @keydown.enter.prevent v-model:value="createFormModel.description"/>
+              <n-input type="textarea" v-model:value="createFormModel.description"/>
             </n-form-item>
 
             <n-form-item path="time_required" label="Benötigte Zeit">
@@ -103,7 +103,7 @@
 import {SettledFileInfo} from "naive-ui/es/upload/src/interface";
 import {uploadImage, uploadRecipe, UploadRecipe} from "~/utils/recipe_upload";
 import {Ref} from "vue";
-import {FormInst} from "naive-ui";
+import {FormInst, FormRules} from "naive-ui";
 
 const authStore = useAuthStore();
 const recipeStore = useRecipeStore();
@@ -121,6 +121,40 @@ const createFormModel: Ref<UploadRecipe> = ref({
   time_required: "",
   ingredients: []
 });
+
+const createFormRules: FormRules = {
+  name: [
+    {
+      required: true,
+      message: 'Name wird benötigt'
+    }
+  ],
+  summary: [
+    {
+      required: true,
+      message: 'Zusammenfassung wird benötigt'
+    }
+  ],
+  ingredients: [
+    {
+      required: true,
+      message: 'Zusammenfassung wird benötigt'
+    }
+  ],
+  description: [
+    {
+      required: true,
+      message: 'Zubereitung wird benötigt'
+    }
+  ],
+  time_required: [
+    {
+      required: true,
+      message: 'Zubereitungszeit wird benötigt'
+    }
+  ],
+
+}
 
 function onFileUpload(file: SettledFileInfo) {
   image.value = file;
