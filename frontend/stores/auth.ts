@@ -34,13 +34,12 @@ export const useAuthStore = defineStore('user', () => {
             return;
 
         const {apiEndpoint} = useAppConfig();
-        console.log(user.value.sessionToken);
 
         await useFetch(`${apiEndpoint}/logout`, {
             ...jsonRequestOptions,
-            body: {
-                session_token: user.value.sessionToken
-            },
+            headers: {
+                Authorization: `Bearer ${user.value.sessionToken}`
+            }
         });
 
         user.value = null;
@@ -53,15 +52,14 @@ export const useAuthStore = defineStore('user', () => {
 
         const {data, error} = await useFetch(`${apiEndpoint}/whois`, {
             ...jsonRequestOptions,
-            body: {
-                session_token: sessionCookie.value
+            headers: {
+                Authorization: `Bearer ${sessionCookie.value}`
             }
         });
 
-        if (error.value) {
-            sessionCookie.value = null;
+        if (error.value)
             return;
-        }
+
 
         user.value = {name: data.value.username, sessionToken: sessionCookie.value};
     }

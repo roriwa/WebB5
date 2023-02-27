@@ -2,7 +2,9 @@
   <div class="max-w-[44rem]">
     <n-card>
       <template #cover>
-        <img :src="props.recipe.imageUrl" alt="preview of food"/>
+        <div class="h-96">
+          <img :src="get_recipe_image_url(props.recipe.image_key)" alt="preview of food"/>
+        </div>
       </template>
       <template #header>
         <div class="relative">
@@ -30,7 +32,7 @@
             <div class="flex">
               <div class="w-12">{{ ingredient.amount }}</div>
               <n-divider vertical/>
-              <div class="ml-2">{{ ingredient.type }}</div>
+              <div class="ml-2">{{ ingredient.typ }}</div>
             </div>
           </n-list-item>
         </n-list>
@@ -52,6 +54,7 @@
 <script setup lang="ts">
 import {Recipe} from "~/stores/recipes";
 import RecipeComments from "~/components/RecipeComments.vue";
+import {get_recipe_image_url} from "~/utils/http";
 
 const props = defineProps<{
   recipe: Recipe
