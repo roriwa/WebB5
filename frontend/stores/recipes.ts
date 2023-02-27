@@ -131,20 +131,20 @@ export const useRecipeStore = defineStore('recipes', () => {
 });
 
 export interface Recipe {
-    id: String,
-    name: String,
-    tags: String[],
-    time_required: String,
-    summary: String,
-    description: String,
-    image_key: String,
+    id: string,
+    name: string,
+    tags: string[],
+    time_required: string,
+    summary: string,
+    description: string,
+    image_key: string,
     ingredients: { amount: string, typ: string }[],
     comments: Comment[]
 }
 
 export interface Comment {
-    author: String,
-    comment: String,
+    author: string,
+    comment: string,
     posted: number
 }
 
