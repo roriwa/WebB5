@@ -78,7 +78,7 @@ const formRules: FormRules = {
   ]
 }
 
-const loginForm = ref<FormInst | null>(null)
+const loginForm = ref<FormInst | null>(null);
 const loginFormModel: Ref<{ username: string, password: string }> = ref({username: "", password: ""});
 
 const registerForm = ref<FormInst | null>(null)

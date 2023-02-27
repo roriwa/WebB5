@@ -28,7 +28,7 @@ pub struct JsonAddRecipe {
 pub async fn recipes(State(state): State<AppState>) -> AppResult {
     let recipes = models::get_all_recipes(&state.db).await?;
 
-    Ok((StatusCode::OK, Json(json!(recipes))).into_response())
+    Ok((StatusCode::OK, Json(json!({"recipes": recipes}))).into_response())
 }
 
 pub async fn add_recipe(State(state): State<AppState>, user: AuthenticatedUser, Json(recipe): Json<JsonAddRecipe>) -> AppResult {
@@ -52,7 +52,6 @@ pub async fn add_recipe(State(state): State<AppState>, user: AuthenticatedUser, 
         name,
         author: user.username,
         tags: recipe.tags,
-        stars: 0,
         time_required: recipe.time_required,
         summary: recipe.summary,
         description: recipe.description,
@@ -63,7 +62,7 @@ pub async fn add_recipe(State(state): State<AppState>, user: AuthenticatedUser, 
 
     models::insert_recipe(&state.db, &recipe).await?;
 
-    Ok((StatusCode::OK, Json(json!(recipe))).into_response())
+    Ok((StatusCode::OK, Json(json!({"recipe": recipe}))).into_response())
 }
 
 
@@ -76,7 +75,7 @@ pub async fn get_recipe_image(Path(key): Path<String>) -> AppResult {
         }
     };
 
-    println!("D");
+
     let stream = tokio_util::io::ReaderStream::new(file);
     let body = StreamBody::new(stream);
     let header = axum::response::AppendHeaders([

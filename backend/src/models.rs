@@ -15,7 +15,6 @@ pub struct Recipe {
     pub name: String,
     pub author: String,
     pub tags: Vec<String>,
-    pub stars: i8,
     pub time_required: String,
     pub summary: String,
     pub description: String,
@@ -69,11 +68,10 @@ pub async fn create_user(pool: &SqlitePool, user: &User) -> anyhow::Result<()> {
 }
 
 pub async fn insert_recipe(pool: &SqlitePool, recipe: &Recipe) -> anyhow::Result<()> {
-    sqlx::query("INSERT INTO recipes (id, name, author, stars, timeRequired, summary, description, imageLocation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+    sqlx::query("INSERT INTO recipes (id, name, author, timeRequired, summary, description, imageLocation) VALUES (?, ?, ?, ?, ?, ?, ?)")
         .bind(&recipe.id)
         .bind(&recipe.name)
         .bind(&recipe.author)
-        .bind(&recipe.stars)
         .bind(&recipe.time_required)
         .bind(&recipe.summary)
         .bind(&recipe.description)
@@ -81,7 +79,7 @@ pub async fn insert_recipe(pool: &SqlitePool, recipe: &Recipe) -> anyhow::Result
         .execute(pool).await?;
 
     for ingredient in &recipe.ingredients {
-        sqlx::query("INSERT INTO ingredients (amount, type, recipeId) VALUES (?, ?, ?")
+        sqlx::query("INSERT INTO ingredients (amount, type, recipeId) VALUES (?, ?, ?)")
             .bind(&ingredient.amount)
             .bind(&ingredient.typ)
             .bind(&recipe.id)
@@ -115,9 +113,8 @@ pub async fn get_all_recipes(pool: &SqlitePool) -> anyhow::Result<Vec<Recipe>> {
 
     for row in recipe_rows {
         let id: String = row.get("id");
-        let name: String = row.get("stars");
+        let name: String = row.get("name");
         let author: String = row.get("author");
-        let stars: i8 = row.get("stars");
         let time_required: String = row.get("timeRequired");
         let summary: String = row.get("summary");
         let description: String = row.get("description");
@@ -150,7 +147,6 @@ pub async fn get_all_recipes(pool: &SqlitePool) -> anyhow::Result<Vec<Recipe>> {
             name,
             author,
             tags,
-            stars,
             time_required,
             summary,
             description,
@@ -196,7 +192,6 @@ pub async fn delete_session(pool: &SqlitePool, session_token: impl AsRef<str>) -
     Ok(())
 }
 
-
 pub async fn bookmark(pool: &SqlitePool, user: String, recipe: String, bookmark: bool) -> anyhow::Result<()> {
     let is_bookmarked = sqlx::query("SELECT * FROM bookmarks WHERE user = ? AND recipeId = ?")
         .bind(&user)
@@ -226,4 +221,16 @@ pub async fn get_all_bookmarks(pool: &SqlitePool, user: String) -> anyhow::Resul
         .fetch_all(pool).await?;
 
     Ok(bookmarks)
+}
+
+
+pub async fn add_comment(pool: &SqlitePool, recipe_id: String, comment: String, author: String, timestamp: i64) -> anyhow::Result<()> {
+    sqlx::query("INSERT INTO comments (author, comment, posted, recipeId) VALUES (?, ?, ?, ?)")
+        .bind(author)
+        .bind(comment)
+        .bind(timestamp)
+        .bind(recipe_id)
+        .execute(pool).await?;
+
+    Ok(())
 }

@@ -4,7 +4,7 @@
         class="flex items-center text-stone-400 right-0 child:flex child:items-center child:justify-center">
       <div>
         <IconCSS name="material-symbols:nest-clock-farsight-analog-outline" size="1.2em"/>
-        {{ props.recipe.timeRequired }}
+        {{ props.recipe.time_required }}
       </div>
       <div class="w-1"></div>
       <div>

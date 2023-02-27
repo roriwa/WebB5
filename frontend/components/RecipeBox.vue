@@ -2,8 +2,11 @@
   <div class="w-96">
     <n-card>
       <template #cover>
+
         <NuxtLink :to="recipeLink">
-          <img :src="props.recipe.imageUrl" alt="preview of food"/>
+          <div class="h-72">
+            <img :src="get_recipe_image_url(props.recipe.image_key)" alt="preview of food"/>
+          </div>
         </NuxtLink>
       </template>
       <template #header>
@@ -36,12 +39,11 @@
 import {Recipe} from "~/stores/recipes";
 import RecipeCardHeaderExtra from "~/components/RecipeCardHeaderExtra.vue";
 import RecipeBookmarkIcon from "~/components/RecipeBookmarkIcon.vue";
+import {get_recipe_image_url} from "~/utils/http";
 
 const props = defineProps<{
   recipe: Recipe
 }>();
-
-const recipeStore = useRecipeStore();
 
 const recipeLink = computed(() => `/recipe/${props.recipe.id}`);
 </script>

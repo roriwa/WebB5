@@ -1,5 +1,4 @@
 use std::fmt::{Display, Formatter};
-use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -60,6 +59,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/bookmark", post(routes::bookmark))
         .route("/bookmarks", post(routes::get_bookmarks))
         .route("/image/:key", get(routes::get_recipe_image))
+        .route("/comment", post(routes::comment))
         .layer(DefaultBodyLimit::max(1024 * 1024 * 10));
 
     info!("Starting webserver...");
