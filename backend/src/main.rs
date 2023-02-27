@@ -1,13 +1,12 @@
 use std::fmt::{Display, Formatter};
+use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use anyhow::anyhow;
-use axum::{Json, Router};
-use axum::body::Body;
-use axum::http::{HeaderMap, Method, Request, StatusCode};
-use axum::http::header::{ACCESS_CONTROL_ALLOW_HEADERS, ACCESS_CONTROL_ALLOW_ORIGIN, ACCESS_CONTROL_REQUEST_METHOD};
-use axum::middleware::Next;
+use axum::{async_trait, Json, Router};
+use axum::extract::{DefaultBodyLimit, FromRequestParts};
+use axum::http::request::Parts;
+use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::routing::{get, get_service, post};
 use serde_json::json;
@@ -22,11 +21,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 mod routes;
 pub mod models;
 
-pub struct AppStateStruct {
-    db: Pool<Sqlite>,
-}
-
-pub type AppState = Arc<AppStateStruct>;
+pub const FILE_UPLOAD_PATH: &str = "images/";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -37,7 +32,7 @@ async fn main() -> anyhow::Result<()> {
             .from_env_lossy())
         .init();
 
-    let sqlite_con = SqlitePool::connect_with(SqliteConnectOptions::from_str("sqlite://data.sqlite")?
+    let sqlite_con = SqlitePool::connect_with(SqliteConnectOptions::from_str("sqlite://./data.sqlite")?
         .journal_mode(SqliteJournalMode::Wal)
         .create_if_missing(true)).await?;
 
@@ -46,14 +41,26 @@ async fn main() -> anyhow::Result<()> {
         .run(&sqlite_con)
         .await?;
 
+    tokio::fs::create_dir_all(FILE_UPLOAD_PATH).await?;
+
     let app_state = Arc::new(AppStateStruct {
         db: sqlite_con,
+        file_upload: routes::file_upload::FileUploadStore::new(),
     });
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .route("/login", post(routes::login))
-        .route("/register", post(routes::register));
+        .route("/register", post(routes::register))
+        .route("/logout", post(routes::logout))
+        .route("/whois", post(routes::whois))
+        .route("/upload", post(routes::file_upload::upload))
+        .route("/add_recipe", post(routes::add_recipe))
+        .route("/recipes", post(routes::recipes))
+        .route("/bookmark", post(routes::bookmark))
+        .route("/bookmarks", post(routes::get_bookmarks))
+        .route("/image/:key", get(routes::get_recipe_image))
+        .layer(DefaultBodyLimit::max(1024 * 1024 * 10));
 
     info!("Starting webserver...");
 
@@ -65,25 +72,11 @@ async fn main() -> anyhow::Result<()> {
         .serve(Router::new()
             .fallback(static_files_service)
             .nest("/api", app)
-            .layer(axum::middleware::from_fn(|req: Request<Body>, next: Next<Body>| async {
-                let mut cors_headers = HeaderMap::new();
-                cors_headers.insert(ACCESS_CONTROL_ALLOW_ORIGIN, "*".parse()
-                    .map_err(|e| anyhow!("could not parse header {}", &e))?);
-                cors_headers.insert(ACCESS_CONTROL_REQUEST_METHOD, "*".parse()
-                    .map_err(|e| anyhow!("could not parse header {}", &e))?);
-                cors_headers.insert(ACCESS_CONTROL_ALLOW_HEADERS, "*".parse()
-                    .map_err(|e| anyhow!("could not parse header {}", &e))?);
-
-                // Handle OPTIONS without reading body / etc.
-                // While it does not check if the route even exists & co, this will allow CORS
-                if req.method() == Method::OPTIONS {
-                    return Ok::<_, AppError>((StatusCode::OK, cors_headers).into_response());
-                }
-                let mut res = next.run(req).await;
-                cors_headers.into_iter().for_each(|(name, value)| { res.headers_mut().insert(name.unwrap(), value); });
-
-                Ok::<_, AppError>(res)
-            }))
+            .layer(tower_http::trace::TraceLayer::new_for_http())
+            .layer(tower_http::cors::CorsLayer::new()
+                .allow_origin(tower_http::cors::Any)
+                .allow_methods(tower_http::cors::Any)
+                .allow_headers(tower_http::cors::Any))
             .with_state(app_state)
 
             .into_make_service())
@@ -92,7 +85,44 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-pub type AppResult<T> = Result<T, AppError>;
+pub type AppState = Arc<AppStateStruct>;
+
+pub struct AppStateStruct {
+    db: Pool<Sqlite>,
+    file_upload: routes::file_upload::FileUploadStore,
+}
+
+pub struct AuthenticatedUser {
+    username: String,
+    session_token: String,
+}
+
+#[async_trait]
+impl FromRequestParts<AppState> for AuthenticatedUser {
+    type Rejection = (StatusCode, Json<serde_json::Value>);
+
+    async fn from_request_parts(parts: &mut Parts, state: &AppState) -> Result<Self, Self::Rejection> {
+        let Some(auth_header) = parts.headers.get(axum::http::header::AUTHORIZATION.as_str())
+            .into_iter()
+            .flat_map(|header| header.to_str().ok())
+            .flat_map(|bearer| bearer.strip_prefix("Bearer "))
+            .last()
+            else { return Err((StatusCode::UNAUTHORIZED, Json(json!({"error": "unauthorized"})))); };
+
+        let Ok(session) = models::get_user_by_session(&state.db, auth_header).await
+            else { return Err((StatusCode::INTERNAL_SERVER_ERROR, Json(json!({"erorr": "could_not_get_session"})))); };
+
+        match session {
+            None => Err((StatusCode::UNAUTHORIZED, Json(json!({"error": "unauthorized"})))),
+            Some(u) => Ok(AuthenticatedUser {
+                username: u.name,
+                session_token: auth_header.to_string(),
+            })
+        }
+    }
+}
+
+pub type AppResult = Result<Response, AppError>;
 
 #[derive(Debug)]
 pub enum AppError {
@@ -104,7 +134,7 @@ impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let message = match self {
             AppError::AnyhowError(e) => {
-                error!("got error in request: {}", &e);
+                error!("got error in request: {:?}", e);
                 "internal_server_error".to_string()
             }
             AppError::Other(e) => e
@@ -113,9 +143,9 @@ impl IntoResponse for AppError {
     }
 }
 
-impl From<anyhow::Error> for AppError {
-    fn from(value: anyhow::Error) -> Self {
-        Self::AnyhowError(value)
+impl<E> From<E> for AppError where E: Into<anyhow::Error> {
+    fn from(value: E) -> Self {
+        Self::AnyhowError(value.into())
     }
 }
 
@@ -128,8 +158,6 @@ impl Display for AppError {
     }
 }
 
-impl std::error::Error for AppError {}
-
-pub fn respond_with_error(status: StatusCode, err_msg: &str) -> AppResult<Response> {
+pub fn respond_with_error(status: StatusCode, err_msg: &str) -> AppResult {
     Ok((status, Json(json!({"error": err_msg}))).into_response())
 }

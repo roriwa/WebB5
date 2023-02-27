@@ -7,7 +7,7 @@
       class="flex basis-full flex-grow"
   >
     <n-loading-bar-provider>
-      <n-message-provider placement="bottom-right">
+      <n-message-provider placement="top" keep-alive-on-hover>
         <n-notification-provider>
           <n-dialog-provider>
             <nuxt-layout name="custom"/>

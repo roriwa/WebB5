@@ -14,8 +14,7 @@
         </div>
       </template>
       <template #header-extra>
-        <RecipeCardHeaderExtra :recipe="props.recipe" :rateable="!!authStore.user"
-                               @rate="rate => recipeStore.rateRecipe(props.recipe, rate)"/>
+        <RecipeCardHeaderExtra :recipe="props.recipe"/>
       </template>
 
       <div>
