@@ -19,6 +19,7 @@
               <n-p depth="3" style="margin: 8px 0 0 0">
                 Es dürfen keine unangemessenen Bilder hochgeladen werden.
                 Ebenfalls sind Bilder, auf denen Personen zu sehen sind, nicht erlaubt.
+                Maximal 20MB.
               </n-p>
             </n-upload-dragger>
           </n-upload>

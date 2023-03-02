@@ -52,13 +52,18 @@ export async function uploadImage(file: File): Promise<string | undefined> {
 
     console.log("Uploading file", file);
 
-    const res: any = await $fetch(`${apiEndpoint}/upload`, {
-        method: "post",
-        headers: {
-            Authorization: `Bearer ${sessionKey}`
-        },
-        body: formData
-    });
+    try {
+        const res: any = await $fetch(`${apiEndpoint}/upload`, {
+            method: "post",
+            headers: {
+                Authorization: `Bearer ${sessionKey}`
+            },
+            body: formData
+        });
 
-    return res.key;
+        return res.key;
+    } catch (e) {
+        console.error("error uploading file", e);
+        return undefined;
+    }
 }

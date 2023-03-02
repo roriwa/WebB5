@@ -28,15 +28,18 @@ pub struct JsonAddRecipe {
 pub async fn recipes(State(state): State<AppState>) -> AppResult {
     let recipes = models::get_all_recipes(&state.db).await?;
 
-    Ok((StatusCode::OK, Json(json!({"recipes": recipes}))).into_response())
+    Ok((StatusCode::OK, Json(json!({ "recipes": recipes }))).into_response())
 }
 
-pub async fn add_recipe(State(state): State<AppState>, user: AuthenticatedUser, Json(recipe): Json<JsonAddRecipe>) -> AppResult {
+pub async fn add_recipe(
+    State(state): State<AppState>,
+    user: AuthenticatedUser,
+    Json(recipe): Json<JsonAddRecipe>,
+) -> AppResult {
     let name = recipe.name.replace(" ", "");
     if name.is_empty() {
         return respond_with_error(StatusCode::BAD_REQUEST, "invalid_name");
     }
-
 
     // Move tempfile into images/ dir
     let Some(image) = state.file_upload.retrieve(recipe.upload_file_key).await else { return respond_with_error(StatusCode::BAD_REQUEST, "no_image"); };
@@ -62,25 +65,23 @@ pub async fn add_recipe(State(state): State<AppState>, user: AuthenticatedUser, 
 
     models::insert_recipe(&state.db, &recipe).await?;
 
-    Ok((StatusCode::OK, Json(json!({"recipe": recipe}))).into_response())
+    Ok((StatusCode::OK, Json(json!({ "recipe": recipe }))).into_response())
 }
-
 
 pub async fn get_recipe_image(Path(key): Path<String>) -> AppResult {
     let file = match get_file(key, false).await {
         Ok(f) => f,
-        Err(e) => return match e.kind() {
-            ErrorKind::NotFound => respond_with_error(StatusCode::NOT_FOUND, "no_file"),
-            _ => Err(e.into())
+        Err(e) => {
+            return match e.kind() {
+                ErrorKind::NotFound => respond_with_error(StatusCode::NOT_FOUND, "no_file"),
+                _ => Err(e.into()),
+            }
         }
     };
 
-
     let stream = tokio_util::io::ReaderStream::new(file);
     let body = StreamBody::new(stream);
-    let header = axum::response::AppendHeaders([
-        (axum::http::header::CONTENT_TYPE, "image/jpeg")
-    ]);
+    let header = axum::response::AppendHeaders([(axum::http::header::CONTENT_TYPE, "image/jpeg")]);
 
     Ok((StatusCode::OK, header, body).into_response())
 }
