@@ -35,7 +35,10 @@ pub async fn login(State(state): State<AppState>, Json(credentials): Json<JsonLo
     Ok((StatusCode::OK, Json(session)).into_response())
 }
 
-pub async fn register(State(state): State<AppState>, Json(credentials): Json<JsonLogin>) -> AppResult {
+pub async fn register(
+    State(state): State<AppState>,
+    Json(credentials): Json<JsonLogin>,
+) -> AppResult {
     let username = credentials.username.replace(" ", "");
 
     if username.is_empty() || credentials.password.is_empty() {

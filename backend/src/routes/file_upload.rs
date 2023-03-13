@@ -17,7 +17,11 @@ use uuid::Uuid;
 
 use crate::{AppError, AppResult, AppState, AuthenticatedUser, respond_with_error};
 
-pub async fn upload(State(state): State<AppState>, _require_auth: AuthenticatedUser, mut multipart: Multipart) -> AppResult {
+pub async fn upload(
+    State(state): State<AppState>,
+    _require_auth: AuthenticatedUser,
+    mut multipart: Multipart,
+) -> AppResult {
     let Some(field) = multipart.next_field().await? else { return respond_with_error(StatusCode::BAD_REQUEST, "file_missing"); };
     let mapped_field = field.map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err));
 
@@ -51,7 +55,7 @@ pub struct FileUploadStore {
 impl FileUploadStore {
     pub fn new() -> Self {
         Self {
-            keys: Default::default()
+            keys: Default::default(),
         }
     }
 

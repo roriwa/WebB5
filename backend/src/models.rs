@@ -88,7 +88,7 @@ pub async fn insert_recipe(pool: &SqlitePool, recipe: &Recipe) -> anyhow::Result
 
     for tag in &recipe.tags {
         sqlx::query("INSERT INTO tags (tag, recipeId) VALUES (?, ?)")
-            .bind(&tag)
+            .bind(tag)
             .bind(&recipe.id)
             .execute(pool).await?;
     }
@@ -97,7 +97,7 @@ pub async fn insert_recipe(pool: &SqlitePool, recipe: &Recipe) -> anyhow::Result
         sqlx::query("INSERT INTO comments (author, comment, posted, recipeId) VALUES (?, ?, ?, ?, ?)")
             .bind(&comment.author)
             .bind(&comment.comment)
-            .bind(&comment.posted.timestamp_millis())
+            .bind(comment.posted.timestamp_millis())
             .bind(&recipe.id)
             .execute(pool).await?;
     }
