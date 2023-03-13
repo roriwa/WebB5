@@ -9,7 +9,8 @@ RUN npm run generate
 # Rust Backend
 # Using cargo-chef to cache dependencies and increase development time
 
-FROM rust:1.67 AS rust_base
+FROM rust:1.68 AS rust_base
+ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 WORKDIR /app
 RUN cargo install cargo-chef --locked
 
